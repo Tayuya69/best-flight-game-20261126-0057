@@ -5,10 +5,11 @@
 
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
 
 const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
-const REPO_DIR = process.cwd();
+const REPO_DIR = fileURLToPath(new URL('.', import.meta.url));
 
 // The dossier caps this competition gates on: 160 KiB of source text,
 // at most 4 screenshots of at most 256 KiB each, game/ at most 993
