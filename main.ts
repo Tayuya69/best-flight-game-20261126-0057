@@ -3,7 +3,7 @@
 // and writes dossier.json with buildDossier from vendor/makefun-game.ts.
 // Node 22, standard library only. Run twice and the bytes must match.
 
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
@@ -23,10 +23,13 @@ const CAPS = {
 };
 
 function main(): void {
-  if (existsSync(OUTPUT_DIR)) {
-    rmSync(OUTPUT_DIR, { recursive: true, force: true });
-  }
+  // Never remove OUTPUT_DIR itself: the grader mounts it as a volume,
+  // and removing the mountpoint throws EBUSY ("Device or resource busy").
+  // Ensure the dir exists, then clear only the known children inside it.
   mkdirSync(OUTPUT_DIR, { recursive: true });
+  for (const child of ['game', 'screenshots', 'dossier.json']) {
+    rmSync(join(OUTPUT_DIR, child), { recursive: true, force: true });
+  }
 
   // The game and its screenshots, copied whole.
   cpSync(join(REPO_DIR, 'game'), join(OUTPUT_DIR, 'game'), { recursive: true });
